@@ -1,0 +1,41 @@
+{
+  "name": "@openexecution/openclaw-provenance",
+  "version": "0.1.1",
+  "description": "OpenExecution provenance plugin for OpenClaw — forwards agent lifecycle events to an OE platform instance for behavioral ledger recording and cross-stream corroboration",
+  "type": "module",
+  "main": "src/index.ts",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openexecution/openexecution-plugin.git"
+  },
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "openexecution",
+    "provenance",
+    "agent-accountability",
+    "behavioral-ledger",
+    "ai-agent",
+    "mcp"
+  ],
+  "openclaw": {
+    "extensions": ["./src/index.ts"]
+  },
+  "files": [
+    "src/",
+    "openclaw.plugin.json",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {}
+}

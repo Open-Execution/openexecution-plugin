@@ -1,0 +1,224 @@
+{
+  "id": "oe-provenance",
+  "name": "OpenExecution Provenance",
+  "description": "Behavioral ledger recording — forwards agent lifecycle events to OpenExecution for cross-stream corroboration",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "webhookUrl": {
+        "type": "string",
+        "description": "OE webhook endpoint URL, e.g. https://api.openexecution.dev/api/v1/webhooks/openclaw/<connectionId>"
+      },
+      "webhookSecret": {
+        "type": "string",
+        "description": "HMAC-SHA256 secret shared with OE for webhook signature verification"
+      },
+      "privacyLevel": {
+        "type": "string",
+        "enum": ["full", "metadata", "minimal"],
+        "default": "full",
+        "description": "Quick privacy preset. 'full': send everything (default). 'metadata': structure + assistant text only. 'minimal': events only, no content."
+      },
+      "displayMode": {
+        "type": "string",
+        "enum": ["silent", "minimal", "verbose"],
+        "default": "minimal",
+        "description": "Terminal output level. 'silent': no output. 'minimal': init + summary. 'verbose': log every event."
+      },
+      "showSessionSummary": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show event/delivery summary when session ends"
+      },
+      "showDeliveryStatus": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show delivery confirmation for each batch"
+      },
+      "displayPrefix": {
+        "type": "string",
+        "default": "oe",
+        "description": "Prefix for all plugin log messages"
+      },
+      "batchIntervalMs": {
+        "type": "number",
+        "default": 2000,
+        "description": "Flush interval for batched events (ms)"
+      },
+      "batchMaxSize": {
+        "type": "number",
+        "default": 50,
+        "description": "Max events per batch before forced flush"
+      },
+      "timeoutMs": {
+        "type": "number",
+        "default": 10000,
+        "description": "HTTP request timeout (ms)"
+      },
+      "retryAttempts": {
+        "type": "number",
+        "default": 3,
+        "description": "Number of retry attempts on delivery failure"
+      },
+      "includeToolArgs": {
+        "type": "boolean",
+        "description": "Include tool call arguments. Overrides privacyLevel if set."
+      },
+      "includeToolResults": {
+        "type": "boolean",
+        "description": "Include tool call results. Overrides privacyLevel if set."
+      },
+      "includeLlmContent": {
+        "type": "boolean",
+        "description": "Include LLM input/output text. Overrides privacyLevel if set."
+      },
+      "includeAssistantText": {
+        "type": "boolean",
+        "description": "Include assistant message text. Overrides privacyLevel if set."
+      },
+      "spoolEnabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable local disk spool for durability"
+      },
+      "spoolDir": {
+        "type": "string",
+        "description": "Directory for spool files. Default: ~/.openclaw/oe-provenance/"
+      },
+      "spoolMaxSizeMb": {
+        "type": "number",
+        "default": 50,
+        "description": "Max spool file size before compaction (MB)"
+      }
+    },
+    "required": ["webhookUrl", "webhookSecret"]
+  },
+  "uiHints": {
+    "webhookUrl": {
+      "label": "Webhook URL",
+      "placeholder": "https://api.openexecution.dev/api/v1/webhooks/openclaw/<connectionId>",
+      "help": "Get this from your OpenExecution dashboard → Connections → Setup",
+      "tags": ["connection"],
+      "order": 1
+    },
+    "webhookSecret": {
+      "label": "Webhook Secret",
+      "placeholder": "your-webhook-secret",
+      "help": "HMAC-SHA256 secret for verifying webhook payloads. Set this in both OpenClaw and OpenExecution.",
+      "sensitive": true,
+      "tags": ["connection", "security"],
+      "order": 2
+    },
+    "privacyLevel": {
+      "label": "Privacy Level",
+      "help": "Controls how much data is sent to OpenExecution. 'minimal' sends only event metadata (tool names, timing). 'metadata' adds assistant text. 'full' sends everything including tool args and LLM content.",
+      "tags": ["privacy"],
+      "order": 3
+    },
+    "displayMode": {
+      "label": "Display Mode",
+      "help": "Controls what the plugin shows in the terminal. 'minimal' shows init + session summary. 'verbose' logs every event.",
+      "tags": ["display"],
+      "order": 4
+    },
+    "showSessionSummary": {
+      "label": "Show Session Summary",
+      "help": "Print event count and delivery stats when a session ends",
+      "tags": ["display"],
+      "order": 5
+    },
+    "showDeliveryStatus": {
+      "label": "Show Delivery Status",
+      "help": "Print ✓/✗ for each batch delivery to OE",
+      "tags": ["display"],
+      "order": 6
+    },
+    "displayPrefix": {
+      "label": "Log Prefix",
+      "help": "Prefix shown before each plugin log line",
+      "tags": ["display"],
+      "advanced": true,
+      "order": 7
+    },
+    "includeToolArgs": {
+      "label": "Include Tool Arguments",
+      "help": "Send full tool call arguments to OE. Overrides the privacy level preset.",
+      "tags": ["privacy"],
+      "advanced": true,
+      "order": 10
+    },
+    "includeToolResults": {
+      "label": "Include Tool Results",
+      "help": "Send full tool call results to OE. Overrides the privacy level preset.",
+      "tags": ["privacy"],
+      "advanced": true,
+      "order": 11
+    },
+    "includeLlmContent": {
+      "label": "Include LLM Content",
+      "help": "Send full LLM prompts and responses to OE. Overrides the privacy level preset.",
+      "tags": ["privacy"],
+      "advanced": true,
+      "order": 12
+    },
+    "includeAssistantText": {
+      "label": "Include Assistant Text",
+      "help": "Send assistant message content to OE. Overrides the privacy level preset.",
+      "tags": ["privacy"],
+      "advanced": true,
+      "order": 13
+    },
+    "batchIntervalMs": {
+      "label": "Batch Interval (ms)",
+      "help": "How often to flush queued events to OE",
+      "tags": ["performance"],
+      "advanced": true,
+      "order": 20
+    },
+    "batchMaxSize": {
+      "label": "Batch Max Size",
+      "help": "Maximum events per batch before a forced flush",
+      "tags": ["performance"],
+      "advanced": true,
+      "order": 21
+    },
+    "timeoutMs": {
+      "label": "Request Timeout (ms)",
+      "help": "HTTP request timeout for webhook delivery",
+      "tags": ["performance"],
+      "advanced": true,
+      "order": 22
+    },
+    "retryAttempts": {
+      "label": "Retry Attempts",
+      "help": "Number of retries on delivery failure (exponential backoff)",
+      "tags": ["performance"],
+      "advanced": true,
+      "order": 23
+    },
+    "spoolEnabled": {
+      "label": "Enable Disk Spool",
+      "help": "Write events to disk before delivery for crash safety. Ensures no data loss during OE downtime.",
+      "tags": ["durability"],
+      "advanced": true,
+      "order": 30
+    },
+    "spoolDir": {
+      "label": "Spool Directory",
+      "placeholder": "~/.openclaw/oe-provenance/",
+      "help": "Where to store the write-ahead log",
+      "tags": ["durability"],
+      "advanced": true,
+      "order": 31
+    },
+    "spoolMaxSizeMb": {
+      "label": "Spool Max Size (MB)",
+      "help": "Spool file is compacted when it exceeds this size",
+      "tags": ["durability"],
+      "advanced": true,
+      "order": 32
+    }
+  }
+}
