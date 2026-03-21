@@ -6,7 +6,7 @@
  */
 
 // Re-export the OpenClaw plugin API type for extension authors
-export type { OpenClawPluginApi } from "openclaw/plugin-sdk/oe-provenance";
+export type { OpenClawPluginApi } from "openclaw/plugin-sdk/openclaw-provenance";
 
 // ── Plugin Configuration ──
 

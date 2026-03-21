@@ -76,7 +76,7 @@ export class DiskSpool {
       this.lineCount++;
       event._spoolBytes = byteLen;
     } catch (err) {
-      this.log.error(`oe-provenance: spool write error (event will be delivered from memory only): ${String(err)}`);
+      this.log.error(`openclaw-provenance: spool write error (event will be delivered from memory only): ${String(err)}`);
     }
 
     if (this.compactionEnabled && this.writeOffset > this.maxSizeBytes && this.deliveredOffset > this.writeOffset * 0.5) {
@@ -95,7 +95,7 @@ export class DiskSpool {
         "utf-8",
       );
     } catch (err) {
-      this.log.error(`oe-provenance: cursor write error: ${String(err)}`);
+      this.log.error(`openclaw-provenance: cursor write error: ${String(err)}`);
     }
 
     if (this.deliveredOffset >= this.writeOffset) {
@@ -123,14 +123,14 @@ export class DiskSpool {
           event._spoolBytes = Buffer.byteLength(line + "\n", "utf-8");
           events.push(event);
         } catch {
-          this.log.warn("oe-provenance: skipping malformed spool line");
+          this.log.warn("openclaw-provenance: skipping malformed spool line");
         }
       }
 
       const byteSize = Buffer.byteLength(remaining, "utf-8");
       return { events, byteSize };
     } catch (err) {
-      this.log.error(`oe-provenance: spool read error: ${String(err)}`);
+      this.log.error(`openclaw-provenance: spool read error: ${String(err)}`);
       return { events: [], byteSize: 0 };
     }
   }
@@ -164,7 +164,7 @@ export class DiskSpool {
 
       const newSize = Buffer.byteLength(lines, "utf-8");
       this.log.info(
-        `oe-provenance: spool compacted — ${this.lineCount - events.length} delivered events removed, ` +
+        `openclaw-provenance: spool compacted — ${this.lineCount - events.length} delivered events removed, ` +
           `${events.length} pending retained (${(newSize / 1024).toFixed(1)}KB)`,
       );
       this.writeOffset = newSize;
@@ -172,7 +172,7 @@ export class DiskSpool {
       this.lineCount = events.length;
       this.deliveredLineCount = 0;
     } catch (err) {
-      this.log.error(`oe-provenance: spool compact error: ${String(err)}`);
+      this.log.error(`openclaw-provenance: spool compact error: ${String(err)}`);
     }
   }
 
@@ -186,7 +186,7 @@ export class DiskSpool {
       this.lineCount = 0;
       this.deliveredLineCount = 0;
     } catch (err) {
-      this.log.error(`oe-provenance: spool truncate error: ${String(err)}`);
+      this.log.error(`openclaw-provenance: spool truncate error: ${String(err)}`);
     }
   }
 }

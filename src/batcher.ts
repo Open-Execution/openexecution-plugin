@@ -58,7 +58,7 @@ export class EventBatcher {
         this.display.onSpoolReplay(replayBatch.length);
         if (events.length > EventBatcher.MAX_QUEUE_SIZE) {
           this.log.warn(
-            `oe-provenance: ${events.length} undelivered events in spool, replaying first ${replayBatch.length}`,
+            `openclaw-provenance: ${events.length} undelivered events in spool, replaying first ${replayBatch.length}`,
           );
         }
         const maxReplayedSeq = events.reduce((max, e) => Math.max(max, e.seq || 0), 0);
@@ -68,7 +68,7 @@ export class EventBatcher {
     }
 
     this.timer = setInterval(() => {
-      this.flush().catch((err) => this.log.error(`oe-provenance: flush error: ${String(err)}`));
+      this.flush().catch((err) => this.log.error(`openclaw-provenance: flush error: ${String(err)}`));
     }, this.config.batchIntervalMs);
 
     if (this.timer && typeof this.timer === "object" && "unref" in this.timer) {
@@ -81,7 +81,7 @@ export class EventBatcher {
       clearInterval(this.timer);
       this.timer = null;
     }
-    await this.flush().catch((err) => this.log.error(`oe-provenance: shutdown flush error: ${String(err)}`));
+    await this.flush().catch((err) => this.log.error(`openclaw-provenance: shutdown flush error: ${String(err)}`));
     this.display.onSessionEnd();
   }
 
@@ -115,7 +115,7 @@ export class EventBatcher {
     }
 
     if (this.queue.length >= this.config.batchMaxSize) {
-      this.flush().catch((err) => this.log.error(`oe-provenance: flush error: ${String(err)}`));
+      this.flush().catch((err) => this.log.error(`openclaw-provenance: flush error: ${String(err)}`));
     }
   }
 
@@ -142,7 +142,7 @@ export class EventBatcher {
       const { events } = this.spool.undelivered();
       if (events.length > 0) {
         const reloadBatch = events.slice(0, EventBatcher.MAX_QUEUE_SIZE);
-        this.log.info(`oe-provenance: reloading ${reloadBatch.length} more events from spool`);
+        this.log.info(`openclaw-provenance: reloading ${reloadBatch.length} more events from spool`);
         this.queue.push(...reloadBatch);
       }
     }
@@ -194,7 +194,7 @@ export class EventBatcher {
 
           if (res.status >= 400 && res.status < 500 && res.status !== 429) {
             this.log.error(
-              `oe-provenance: non-retryable ${res.status} — delivery ${deliveryId}: ${lastError.message}`,
+              `openclaw-provenance: non-retryable ${res.status} — delivery ${deliveryId}: ${lastError.message}`,
             );
             return;
           }

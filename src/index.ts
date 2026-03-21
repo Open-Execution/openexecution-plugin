@@ -1,5 +1,5 @@
 /**
- * @module oe-provenance
+ * @module openclaw-provenance
  * @description OpenExecution provenance plugin for OpenClaw.
  *
  * Bridges the gap between OpenClaw's internal agent event system and
@@ -9,14 +9,14 @@
  *   OpenClaw agent event → plugin hook → disk spool (JSONL) → batch queue → HTTP POST → OE webhook
  *
  * Configuration:
- *   In ~/.openclaw/openclaw.json under "oe-provenance":
+ *   In ~/.openclaw/openclaw.json under "openclaw-provenance":
  *   - privacyLevel: "full" | "metadata" | "minimal"  — quick preset
  *   - displayMode: "silent" | "minimal" | "verbose"   — terminal output level
  *   - Individual privacy flags override the preset
  *
  * License: Apache 2.0
  */
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/oe-provenance";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk/openclaw-provenance";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -28,7 +28,7 @@ import { DisplayManager } from "./display.js";
 import { stripToolArgs, stripToolResult, extractArgHints, extractCorrelationHints } from "./privacy.js";
 
 const oeProvenancePlugin = {
-  id: "oe-provenance",
+  id: "openclaw-provenance",
   name: "OpenExecution Provenance",
   description:
     "Forwards agent lifecycle events to an OpenExecution platform instance for behavioral ledger recording and cross-stream corroboration.",
@@ -68,7 +68,7 @@ const oeProvenancePlugin = {
   register(api: OpenClawPluginApi) {
     const raw = (api.pluginConfig || {}) as PluginConfig;
     if (!raw.webhookUrl || !raw.webhookSecret) {
-      api.logger.warn("oe-provenance: missing webhookUrl or webhookSecret — plugin disabled");
+      api.logger.warn("openclaw-provenance: missing webhookUrl or webhookSecret — plugin disabled");
       return;
     }
 
@@ -78,18 +78,18 @@ const oeProvenancePlugin = {
     // Initialize disk spool
     let spool: DiskSpool | null = null;
     if (raw.spoolEnabled !== false) {
-      const spoolDir = raw.spoolDir || join(homedir(), ".openclaw", "oe-provenance");
+      const spoolDir = raw.spoolDir || join(homedir(), ".openclaw", "openclaw-provenance");
       const maxSizeMb = Math.max(raw.spoolMaxSizeMb ?? 50, 1);
       try {
         spool = new DiskSpool(spoolDir, maxSizeMb, api.logger);
         const stats = spool.stats();
         if (stats.pendingLines > 0) {
           api.logger.info(
-            `oe-provenance: spool loaded — ${stats.pendingLines} pending (${(stats.fileSizeBytes / 1024).toFixed(1)}KB)`,
+            `openclaw-provenance: spool loaded — ${stats.pendingLines} pending (${(stats.fileSizeBytes / 1024).toFixed(1)}KB)`,
           );
         }
       } catch (err) {
-        api.logger.error(`oe-provenance: spool init failed (continuing without durability): ${String(err)}`);
+        api.logger.error(`openclaw-provenance: spool init failed (continuing without durability): ${String(err)}`);
       }
     }
 

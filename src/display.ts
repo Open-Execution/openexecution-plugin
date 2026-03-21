@@ -4,7 +4,7 @@
  *
  * License: Apache 2.0
  */
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/oe-provenance";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk/openclaw-provenance";
 import type { ResolvedConfig } from "./types.js";
 
 /**
